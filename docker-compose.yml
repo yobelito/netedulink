@@ -1,0 +1,45 @@
+services:
+  squid:
+    build: .  # Usa la imagen personalizada con SSL Bump
+    container_name: squid-cache
+    restart: always
+    ports:
+      - "3128:3128"
+      - "3129:3129"
+    volumes:
+      - ./squid.conf:/usr/local/squid/etc/squid.conf
+      - ./ssl_cert:/etc/squid/ssl_cert
+      - squid_cache:/var/spool/squid
+      - squid_logs:/var/log/squid  # Comparte los logs con Squid Analyzer
+    environment:
+      - TZ=America/Lima
+
+  squid-analyzer:
+    image: coun/squidanalyzer
+    container_name: squid-analyzer
+    restart: always
+    ports:
+      - "8090:8090"  # Puerto web de Squid Analyzer
+    environment:
+      - LOGIN=admin  # Usuario del dashboard
+      - PASS=passphrase  # Contraseña del dashboard
+      - TZ=America/Lima  # Zona horaria
+      - LOCALE=en_US.UTF-8
+      - LANG=en_US.UTF-8
+      - LANGUAGE=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - PATHLOGS=/var/log/squid/access.log
+    volumes:
+      - squidanalyzer-conf:/etc/squidanalyzer  # Configuración de Squid Analyzer
+      - squid_logs:/var/log/squid  # Logs de Squid
+      - squid-full-logs:/var/www/html/squidreport  # Reportes generados
+
+volumes:
+  squid_cache:
+    driver: local
+  squid_logs:
+    driver: local  # Volumen compartido entre Squid y Squid Analyzer
+  squidanalyzer-conf:
+    driver: local
+  squid-full-logs:
+    driver: local
