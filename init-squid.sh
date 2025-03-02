@@ -10,11 +10,11 @@ if [ ! -d "/var/lib/squid/ssl_db" ]; then
     chmod -R 700 /var/lib/squid/ssl_db
 fi
 
-#echo "Verificando y creando directorios de caché de Squid..."
-#/usr/local/squid/sbin/squid -z
+echo "Verificando y creando directorios de caché de Squid..."
+/usr/local/squid/sbin/squid -z
 
-#echo "Eliminando archivos PID previos si existen..."
-#rm -f /usr/local/squid/var/run/squid.pid
+echo "Eliminando archivos PID previos si existen..."
+rm -f /usr/local/squid/var/run/squid.pid
 
 echo "Iniciando Squid..."
 exec /usr/local/squid/sbin/squid -N -d 1

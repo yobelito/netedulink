@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Precacher</title>
+    <script>
+        function sendTheme() {
+            const theme = document.getElementById("theme").value;
+            fetch("http://localhost:5002/generate_keywords", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ theme: theme })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById("output").innerText = JSON.stringify(data, null, 2))
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</head>
+<body>
+    <h2>Ingrese el Tema para la Búsqueda</h2>
+    <input type="text" id="theme">
+    <button onclick="sendTheme()">Buscar</button>
+    <pre id="output"></pre>
+</body>
+</html>

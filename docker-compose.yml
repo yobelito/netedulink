@@ -21,18 +21,38 @@ services:
     ports:
       - "8090:8090"  # Puerto web de Squid Analyzer
     environment:
-      - LOGIN=admin  # Usuario del dashboard
-      - PASS=passphrase  # Contraseña del dashboard
-      - TZ=America/Lima  # Zona horaria
-      - LOCALE=en_US.UTF-8
-      - LANG=en_US.UTF-8
-      - LANGUAGE=en_US.UTF-8
-      - LC_ALL=en_US.UTF-8
+      - LOGIN=admin
+      - PASS=admin
+      - TZ=America/Lima
       - PATHLOGS=/var/log/squid/access.log
     volumes:
-      - squidanalyzer-conf:/etc/squidanalyzer  # Configuración de Squid Analyzer
+      - squidanalyzer-conf:/etc/squidanalyzer
       - squid_logs:/var/log/squid  # Logs de Squid
       - squid-full-logs:/var/www/html/squidreport  # Reportes generados
+
+  squid_precacher:
+    build: ./squid_precacher
+    container_name: squid-precacher
+    restart: always
+    ports:
+      - "5002:5000"  # Puerto del backend Flask
+    volumes:
+      - ./squid_precacher/config.conf:/app/config.conf
+    environment:
+      - CONFIG_FILE=/app/config.conf
+    depends_on:
+      - squid  # Espera a que Squid Proxy esté listo antes de ejecutarse
+
+  frontend:
+    build: ./frontend
+    container_name: frontend-nginx
+    restart: always
+    ports:
+      - "8080:80"  # Servir frontend en el puerto 8080
+    depends_on:
+      - squid_precacher  # Se asegura que el backend esté listo antes
+    volumes:
+      - ./frontend:/usr/share/nginx/html  # Servir archivos HTML/JS
 
 volumes:
   squid_cache:
